@@ -1,1 +1,500 @@
 # Contri_Manager
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💰 Contri Manager</title>
+    <style>
+        /* Modern Font and Reset */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        
+        * { box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background-color: #f0f4f8; color: #334155; padding: 20px; line-height: 1.6; margin: 0; }
+        
+        .container { 
+            max-width: 800px; margin: auto; background: #ffffff; padding: 30px; 
+            border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); 
+        }
+        
+        h1 { color: #0f172a; text-align: center; margin-bottom: 30px; font-weight: 700; }
+        h2 { color: #1e293b; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; margin-top: 0; }
+        h3 { color: #334155; font-size: 1.1em; margin-top: 25px; }
+        
+        /* Animations */
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animated { animation: slideUp 0.4s ease-out forwards; }
+
+        /* Sections */
+        .section { 
+            margin-bottom: 30px; padding: 20px; border: 1px solid #e2e8f0; 
+            border-radius: 10px; background: #f8fafc; transition: all 0.3s ease;
+        }
+        .section:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+
+        /* Inputs & Buttons */
+        .input-group { position: relative; width: 100%; display: flex; align-items: center; }
+        input[type="text"] { 
+            padding: 12px 15px; margin: 5px 0; width: 100%; 
+            border: 2px solid #cbd5e1; border-radius: 8px; 
+            transition: all 0.2s; font-size: 16px; background: white;
+        }
+        input[type="text"]:focus { border-color: #3b82f6; outline: none; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
+        
+        button { 
+            background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; 
+            border: none; padding: 12px 20px; cursor: pointer; border-radius: 8px; 
+            font-weight: 600; font-size: 15px; transition: transform 0.1s, box-shadow 0.2s; 
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3); }
+        button:active { transform: translateY(0); }
+        button:focus { outline: 3px solid #93c5fd; }
+        
+        .btn-success { background: linear-gradient(135deg, #10b981, #059669); width: 100%; font-size: 18px; padding: 15px; margin-top: 20px;}
+        .btn-success:hover { box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3); }
+
+        .calc-hint { font-size: 0.85em; color: #64748b; margin-bottom: 10px; display: block; }
+        .flex-row { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
+        .flex-row span.label { min-width: 150px; font-weight: 600; color: #475569; }
+        
+        /* Lists & Tables */
+        ul { list-style-type: none; padding: 0; }
+        li { background: white; margin: 8px 0; padding: 12px 15px; border-radius: 8px; border: 1px solid #e2e8f0; font-weight: 500;}
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        th, td { border-bottom: 1px solid #e2e8f0; padding: 12px; text-align: left; }
+        th { background-color: #f1f5f9; font-weight: 600; color: #334155; }
+        
+        .balance-positive { color: #10b981; font-weight: 700; }
+        .balance-negative { color: #ef4444; font-weight: 700; }
+        .highlight-box { background-color: #eff6ff; padding: 15px; border-left: 5px solid #3b82f6; margin: 15px 0; border-radius: 4px; }
+        
+        /* Sub-list for grouped settlements */
+        .sub-list { margin-top: 10px; padding-left: 10px; }
+        .sub-list li { background: #f8fafc; border: none; padding: 8px; margin: 4px 0; font-size: 0.95em; border-left: 3px solid #cbd5e1; }
+
+        /* History Logs */
+        .history-card { background: white; border: 1px solid #e2e8f0; padding: 15px; margin-bottom: 15px; border-radius: 8px; border-left: 5px solid #10b981; }
+        .history-card h4 { margin: 0 0 10px 0; color: #1e293b; font-size: 1.1em; }
+        .history-details { display: flex; justify-content: space-between; gap: 20px; font-size: 0.9em; }
+        .history-col { flex: 1; }
+        .history-col p { margin: 5px 0; color: #475569; }
+
+        /* Calculation Memory Tooltip */
+        .memory-icon {
+            position: absolute; right: 10px; background: #e2e8f0; color: #475569;
+            border-radius: 50%; width: 24px; height: 24px; display: flex;
+            align-items: center; justify-content: center; font-size: 12px;
+            cursor: pointer; display: none; transition: all 0.2s;
+        }
+        .memory-icon:hover { background: #cbd5e1; }
+        .memory-icon[title]:hover::after {
+            content: attr(title); position: absolute; bottom: 120%; right: -10px;
+            background: #1e293b; color: white; padding: 5px 10px;
+            border-radius: 4px; font-size: 12px; white-space: nowrap; z-index: 10;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container animated">
+    <h1>💰 Contri Manager</h1>
+
+    <div class="section">
+        <h2>1. Add Friends</h2>
+        <div class="flex-row">
+            <input type="text" id="new-person-name" placeholder="Enter friend's name (e.g., Tiwari)">
+            <button onclick="addPerson()">Add Friend</button>
+        </div>
+        <ul id="people-list"></ul>
+    </div>
+
+    <div class="section animated" id="expense-section" style="display:none;">
+        <h2>2. Add an Expense</h2>
+        
+        <label><b>Expense Description (Optional):</b></label>
+        <input type="text" id="expense-desc" placeholder="e.g., Dinner Bill (Food + Water)">
+
+        <h3>Who Paid How Much?</h3>
+        <div id="payer-inputs"></div>
+
+        <h3 style="margin-top:25px;">How was the bill shared?</h3>
+        <div class="highlight-box">
+            <label><b>Common Expense (Split Equally):</b></label>
+            <span class="calc-hint">Shared by everyone (e.g., water bottles). Press Enter to calculate.</span>
+            <div class="input-group">
+                <input type="text" id="common-amount" class="calc-input" placeholder="e.g. 100">
+                <div class="memory-icon">👁️</div>
+            </div>
+        </div>
+
+        <label><b>Specific Individual Share:</b></label>
+        <span class="calc-hint">Only this person consumed it. Leave blank if 0.</span>
+        <div id="consumption-inputs"></div>
+
+        <button onclick="addExpense()" class="btn-success" id="save-expense-btn">💾 Save Expense</button>
+    </div>
+
+    <div class="section animated" id="summary-section" style="display:none;">
+        <h2>3. Balances & Settlements</h2>
+        <table id="balances-table">
+            <thead>
+                <tr>
+                    <th>Person</th>
+                    <th>Total Paid</th>
+                    <th>Total Consumed</th>
+                    <th>Net Balance</th>
+                </tr>
+            </thead>
+            <tbody id="balances-body"></tbody>
+        </table>
+        <h3>Who owes whom?</h3>
+        <ul id="settlements-list"></ul>
+    </div>
+
+    <div class="section animated" id="history-section" style="display:none;">
+        <h2>4. Expense History (Proof)</h2>
+        <div id="history-list"></div>
+    </div>
+</div>
+
+<script>
+    let people = [];
+    let balances = {}; // Stores EXACT floating point numbers
+    let expenseHistory = []; 
+
+    // --- NEW FORMATTING FUNCTION ---
+    // This turns decimals into exact (approx) format. e.g. 71.666 -> "₹71.67 (₹72)"
+    function formatMoney(val) {
+        let exact = Math.round(val * 100) / 100; // Round to 2 decimal places exactly
+        let approx = Math.round(val);            // Round to nearest whole number
+        
+        // If the number is basically a whole number already, just show it normally
+        if (Math.abs(exact - approx) < 0.01) {
+            return `₹${approx}`;
+        }
+        
+        // Otherwise, show Exact Amount (Approximate Amount)
+        return `₹${exact.toFixed(2)} (₹${approx})`;
+    }
+
+
+    // --- QUICK ADD FRIEND VIA ENTER KEY ---
+    document.getElementById('new-person-name').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            addPerson();
+        }
+    });
+
+    // --- SMART CALCULATOR LOGIC ---
+    document.addEventListener('input', function(e) {
+        if (e.target.classList.contains('calc-input')) {
+            let val = e.target.value;
+            if (/([+\-*/])([+\-*/])$/.test(val)) {
+                e.target.value = val.slice(0, -2) + val.slice(-1);
+            }
+        }
+    });
+
+    document.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            if (e.target.classList.contains('calc-input')) {
+                e.preventDefault();
+                let originalExp = e.target.value;
+                try {
+                    let result = new Function('return ' + originalExp)();
+                    if (!isNaN(result) && originalExp.trim() !== '') {
+                        e.target.value = Math.round(result * 100) / 100; 
+                        let icon = e.target.nextElementSibling;
+                        if (icon && icon.classList.contains('memory-icon') && originalExp != e.target.value) {
+                            icon.style.display = 'flex';
+                            icon.setAttribute('title', `Calculated: ${originalExp}`);
+                        }
+                    }
+                } catch (err) {} 
+            }
+
+            if (e.target.closest('#expense-section')) {
+                e.preventDefault(); 
+                let inputs = Array.from(document.querySelectorAll('#expense-section input[type="text"]'));
+                let index = inputs.indexOf(e.target);
+                
+                if (index > -1) {
+                    if (index < inputs.length - 1) {
+                        inputs[index + 1].focus();
+                    } else {
+                        document.getElementById('save-expense-btn').focus();
+                    }
+                }
+            }
+        }
+    });
+
+    function evaluateInputExact(id) {
+        let valInput = document.getElementById(id).value;
+        if (!valInput) return 0;
+        try {
+            let result = new Function('return ' + valInput)();
+            return isNaN(result) ? 0 : result;
+        } catch (e) {
+            return 0;
+        }
+    }
+
+    // --- APP LOGIC ---
+    function addPerson() {
+        let nameInput = document.getElementById('new-person-name');
+        let name = nameInput.value.trim();
+        
+        if (name !== "" && !people.includes(name)) {
+            people.push(name);
+            balances[name] = { paid: 0, consumed: 0 };
+            nameInput.value = '';
+            
+            let payerContainer = document.getElementById('payer-inputs');
+            payerContainer.innerHTML += `
+                <div class="flex-row animated" id="payer-row-${name}">
+                    <span class="label">${name} paid:</span>
+                    <div class="input-group">
+                        <input type="text" id="paid-${name}" class="calc-input" placeholder="Amount (Press Enter)">
+                        <div class="memory-icon">👁️</div>
+                    </div>
+                </div>
+            `;
+
+            let consumeContainer = document.getElementById('consumption-inputs');
+            consumeContainer.innerHTML += `
+                <div class="flex-row animated" id="consume-row-${name}">
+                    <span class="label">${name}'s share:</span>
+                    <div class="input-group">
+                        <input type="text" id="consume-${name}" class="calc-input" placeholder="Specific share (Press Enter)">
+                        <div class="memory-icon">👁️</div>
+                    </div>
+                </div>
+            `;
+            
+            let list = document.getElementById('people-list');
+            list.innerHTML = '';
+            people.forEach(p => { list.innerHTML += `<li class="animated">👤 ${p}</li>`; });
+            
+            document.getElementById('expense-section').style.display = 'block';
+            document.getElementById('summary-section').style.display = 'block';
+            document.getElementById('history-section').style.display = 'block';
+            updateSummary();
+
+            nameInput.focus();
+        } else {
+            alert("Please enter a valid, unique name.");
+            nameInput.focus();
+        }
+    }
+
+    function addExpense() {
+        if (people.length === 0) return;
+
+        let totalPaidInForm = 0;
+        let paymentData = {};
+        let desc = document.getElementById('expense-desc').value || `Expense #${expenseHistory.length + 1}`;
+        
+        people.forEach(p => {
+            let amountPaid = evaluateInputExact(`paid-${p}`);
+            paymentData[p] = amountPaid;
+            totalPaidInForm += amountPaid;
+        });
+
+        if (totalPaidInForm <= 0) {
+            alert("Please enter at least one payment amount greater than 0.");
+            return;
+        }
+
+        let commonAmount = evaluateInputExact('common-amount');
+        let splitAmountPerPerson = commonAmount / people.length; // Exact decimal calculation
+        
+        let totalConsumedInForm = 0;
+        let consumptionData = {};
+
+        people.forEach(p => {
+            let specificConsumed = evaluateInputExact(`consume-${p}`);
+            let totalConsumedByPerson = specificConsumed + splitAmountPerPerson;
+            consumptionData[p] = {
+                specific: specificConsumed,
+                total: totalConsumedByPerson
+            };
+            totalConsumedInForm += totalConsumedByPerson;
+        });
+
+        if (Math.abs(totalPaidInForm - totalConsumedInForm) > Math.max(2, people.length)) {
+            let proceed = confirm(`Warning: Paid is ₹${Math.round(totalPaidInForm)}, but Total Consumed is ₹${Math.round(totalConsumedInForm)}. Save anyway?`);
+            if(!proceed) return;
+        }
+
+        // Apply exact decimals to the overall balances
+        people.forEach(p => {
+            balances[p].paid += paymentData[p];
+            balances[p].consumed += consumptionData[p].total;
+        });
+
+        expenseHistory.push({
+            description: desc,
+            totalPaid: totalPaidInForm,
+            commonAmount: commonAmount,
+            splitPerPerson: splitAmountPerPerson,
+            payments: paymentData,
+            consumption: consumptionData
+        });
+
+        document.getElementById('expense-desc').value = '';
+        document.getElementById('common-amount').value = '';
+        people.forEach(p => {
+            document.getElementById(`paid-${p}`).value = '';
+            document.getElementById(`consume-${p}`).value = '';
+        });
+        document.querySelectorAll('.memory-icon').forEach(icon => icon.style.display = 'none');
+
+        updateSummary();
+        updateHistoryUI();
+
+        document.getElementById('expense-desc').focus();
+    }
+
+    function updateSummary() {
+        let tbody = document.getElementById('balances-body');
+        tbody.innerHTML = '';
+        
+        let debtors = [];
+        let creditors = [];
+
+        people.forEach(p => {
+            let exactPaid = balances[p].paid;
+            let exactConsumed = balances[p].consumed;
+            let exactNet = exactPaid - exactConsumed; // Exact difference
+
+            let displayPaid = formatMoney(exactPaid);
+            let displayConsumed = formatMoney(exactConsumed);
+
+            let netText = "Settled";
+            let netClass = "";
+            
+            // Using 0.001 to avoid microscopic javascript math bugs 
+            if (exactNet > 0.001) {
+                netText = `Gets back ${formatMoney(exactNet)}`;
+                netClass = "balance-positive";
+                creditors.push({ name: p, amount: exactNet });
+            } else if (exactNet < -0.001) {
+                netText = `Owes ${formatMoney(Math.abs(exactNet))}`;
+                netClass = "balance-negative";
+                debtors.push({ name: p, amount: Math.abs(exactNet) });
+            }
+
+            tbody.innerHTML += `
+                <tr>
+                    <td><b>${p}</b></td>
+                    <td>${displayPaid}</td>
+                    <td>${displayConsumed}</td>
+                    <td class="${netClass}">${netText}</td>
+                </tr>
+            `;
+        });
+
+        calculateSettlements(debtors, creditors);
+    }
+
+    function calculateSettlements(debtors, creditors) {
+        let list = document.getElementById('settlements-list');
+        list.innerHTML = '';
+
+        if (debtors.length === 0 && creditors.length === 0) {
+            list.innerHTML = '<li>🎉 Everyone is completely settled up!</li>';
+            return;
+        }
+
+        debtors.sort((a, b) => b.amount - a.amount);
+        creditors.sort((a, b) => b.amount - a.amount);
+
+        let groupedSettlements = {};
+
+        let i = 0, j = 0; 
+        while (i < debtors.length && j < creditors.length) {
+            let debtor = debtors[i];
+            let creditor = creditors[j];
+            let amountToSettle = Math.min(debtor.amount, creditor.amount);
+
+            if (!groupedSettlements[debtor.name]) {
+                groupedSettlements[debtor.name] = [];
+            }
+            groupedSettlements[debtor.name].push({ to: creditor.name, amount: amountToSettle });
+
+            debtor.amount -= amountToSettle;
+            creditor.amount -= amountToSettle;
+
+            if (debtor.amount <= 0.001) i++;
+            if (creditor.amount <= 0.001) j++;
+        }
+
+        for (let debtorName in groupedSettlements) {
+            let payments = groupedSettlements[debtorName];
+            
+            let listItem = document.createElement('li');
+            listItem.innerHTML = `💸 <b>${debtorName}</b> needs to pay:`;
+            
+            let subList = document.createElement('ul');
+            subList.className = 'sub-list';
+            
+            payments.forEach(payment => {
+                subList.innerHTML += `<li>➡️ To <b>${payment.to}</b> : <span class="balance-negative">${formatMoney(payment.amount)}</span></li>`;
+            });
+
+            listItem.appendChild(subList);
+            list.appendChild(listItem);
+        }
+    }
+
+    function updateHistoryUI() {
+        let historyContainer = document.getElementById('history-list');
+        historyContainer.innerHTML = ''; 
+
+        for (let i = expenseHistory.length - 1; i >= 0; i--) {
+            let record = expenseHistory[i];
+            
+            let paidHtml = '';
+            for (let person in record.payments) {
+                if (record.payments[person] > 0) {
+                    paidHtml += `<p><b>${person}:</b> ${formatMoney(record.payments[person])}</p>`;
+                }
+            }
+
+            let consumedHtml = `<p><i>Common Split: ${formatMoney(record.commonAmount)} (${formatMoney(record.splitPerPerson)} / person)</i></p>`;
+            for (let person in record.consumption) {
+                let data = record.consumption[person];
+                if (data.total > 0) {
+                    let specificText = data.specific > 0 ? ` (+ ${formatMoney(data.specific)} specific)` : '';
+                    consumedHtml += `<p><b>${person}:</b> ${formatMoney(data.total)} ${specificText}</p>`;
+                }
+            }
+
+            let card = `
+                <div class="history-card animated">
+                    <h4>🧾 ${record.description} (Total: ${formatMoney(record.totalPaid)})</h4>
+                    <div class="history-details">
+                        <div class="history-col">
+                            <b>Paid By:</b>
+                            ${paidHtml}
+                        </div>
+                        <div class="history-col">
+                            <b>Charged To:</b>
+                            ${consumedHtml}
+                        </div>
+                    </div>
+                </div>
+            `;
+            historyContainer.innerHTML += card;
+        }
+    }
+</script>
+
+</body>
+</html>
